@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validate gnome-rio extension packaging and pure logic.
+# Validate Rio Resize extension packaging and pure logic.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,25 +18,25 @@ echo "== metadata.json =="
 python3 - <<'PY' || exit 1
 import json, sys
 m = json.load(open("metadata.json"))
-assert m["uuid"] == "gnome-rio@deedles.dev", m["uuid"]
+assert m["uuid"] == "rio-resize@deedles.dev", m["uuid"]
 assert "50" in m["shell-version"], m["shell-version"]
-assert m["settings-schema"] == "org.gnome.shell.extensions.gnome-rio", m.get("settings-schema")
+assert m["settings-schema"] == "org.gnome.shell.extensions.rio-resize", m.get("settings-schema")
 assert m["name"] == "Rio Resize", m["name"]
 print("OK: metadata contract")
 PY
 
 echo "== schema compile + gsettings =="
 SCHEMA_DIR="$ROOT/schemas"
-SCHEMA_XML="$SCHEMA_DIR/org.gnome.shell.extensions.gnome-rio.gschema.xml"
+SCHEMA_XML="$SCHEMA_DIR/org.gnome.shell.extensions.rio-resize.gschema.xml"
 test -f "$SCHEMA_XML" || fail "missing schema xml"
 glib-compile-schemas "$SCHEMA_DIR" || fail "glib-compile-schemas"
 
 # settings-schema id and key + Super+r default
-grep -q 'id="org.gnome.shell.extensions.gnome-rio"' "$SCHEMA_XML" || fail "schema id"
+grep -q 'id="org.gnome.shell.extensions.rio-resize"' "$SCHEMA_XML" || fail "schema id"
 grep -q 'name="reshape-window"' "$SCHEMA_XML" || fail "reshape-window key"
 grep -q "<Super>r" "$SCHEMA_XML" || fail "default Super+r in schema xml"
 
-DEFAULT="$(gsettings --schemadir "$SCHEMA_DIR" get org.gnome.shell.extensions.gnome-rio reshape-window)"
+DEFAULT="$(gsettings --schemadir "$SCHEMA_DIR" get org.gnome.shell.extensions.rio-resize reshape-window)"
 # Accept either ['<Super>r'] or ["<Super>r"] depending on gsettings quoting
 echo "$DEFAULT" | grep -Eq "Super>r" || fail "gsettings default was: $DEFAULT"
 ok "gsettings reshape-window default: $DEFAULT"

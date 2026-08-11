@@ -13,7 +13,7 @@ import {isValidShortcutMask} from './geometry.js';
 
 const KEYBINDING = 'reshape-window';
 
-export default class GnomeRioPreferences extends ExtensionPreferences {
+export default class RioResizePreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;

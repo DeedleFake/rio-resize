@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.gnome.shell.extensions.gnome-rio"
-          path="/org/gnome/shell/extensions/gnome-rio/">
+  <schema id="org.gnome.shell.extensions.rio-resize"
+          path="/org/gnome/shell/extensions/rio-resize/">
     <key type="as" name="reshape-window">
       <default><![CDATA[['<Super>r']]]></default>
       <summary>Reshape focused window</summary>

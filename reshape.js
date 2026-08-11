@@ -162,12 +162,12 @@ export class GeometryApplier {
                     }
                     break;
                 default:
-                    console.error(`[gnome-rio] unknown apply step: ${step}`);
+                    console.error(`[rio-resize] unknown apply step: ${step}`);
                     break;
                 }
             }
         } catch (e) {
-            console.error('[gnome-rio] apply failed:', e);
+            console.error('[rio-resize] apply failed:', e);
             this._flashMessage?.('Could not reshape window');
         }
     }
@@ -210,7 +210,7 @@ export class GeometryApplier {
                 pending.width,
                 pending.height);
         } catch (e) {
-            console.error('[gnome-rio] move_resize failed:', e);
+            console.error('[rio-resize] move_resize failed:', e);
             this._flashMessage?.('Could not reshape window');
         }
     }
@@ -313,7 +313,7 @@ export class ReshapeSession {
 
         try {
             this._overlay = new St.Widget({
-                name: 'gnome-rio-reshape-overlay',
+                name: 'rio-resize-reshape-overlay',
                 reactive: true,
                 can_focus: true,
                 visible: true,
@@ -327,7 +327,7 @@ export class ReshapeSession {
             }));
 
             this._rubberband = new St.Widget({
-                style_class: 'gnome-rio-rubberband',
+                style_class: 'rio-resize-rubberband',
                 visible: false,
                 x: -10,
                 y: -10,
@@ -358,14 +358,14 @@ export class ReshapeSession {
                     'unmanaged',
                     () => this.cancel());
             } catch (e) {
-                console.error('[gnome-rio] reshape begin setup failed:', e);
+                console.error('[rio-resize] reshape begin setup failed:', e);
                 this.destroy();
                 return false;
             }
 
             return true;
         } catch (e) {
-            console.error('[gnome-rio] reshape begin failed:', e);
+            console.error('[rio-resize] reshape begin failed:', e);
             this.destroy();
             return false;
         }
@@ -503,7 +503,7 @@ export class ReshapeSession {
             try {
                 applier.apply(window, geom.x, geom.y, geom.width, geom.height);
             } catch (e) {
-                console.error('[gnome-rio] apply threw:', e);
+                console.error('[rio-resize] apply threw:', e);
                 this._flashMessage?.('Could not reshape window');
             }
             return Clutter.EVENT_STOP;
@@ -550,7 +550,7 @@ export function createFlashMessage() {
 
         if (!text) {
             text = new St.Label({
-                style_class: 'gnome-rio-message',
+                style_class: 'rio-resize-message',
                 text: message,
             });
             Main.uiGroup.add_child(text);

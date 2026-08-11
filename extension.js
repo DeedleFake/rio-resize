@@ -15,7 +15,7 @@ import {
 
 const KEYBINDING = 'reshape-window';
 
-export default class GnomeRioExtension extends Extension {
+export default class RioResizeExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._flash = createFlashMessage();

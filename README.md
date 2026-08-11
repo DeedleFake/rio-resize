@@ -18,17 +18,17 @@ From the repository root:
 
 # Install into the user extensions directory
 mkdir -p ~/.local/share/gnome-shell/extensions
-cp -a . ~/.local/share/gnome-shell/extensions/gnome-rio@deedles.dev
+cp -a . ~/.local/share/gnome-shell/extensions/rio-resize@deedles.dev
 
 # Compile the GSettings schema (required for the shortcut)
-glib-compile-schemas ~/.local/share/gnome-shell/extensions/gnome-rio@deedles.dev/schemas
+glib-compile-schemas ~/.local/share/gnome-shell/extensions/rio-resize@deedles.dev/schemas
 ```
 
 Or symlink for development:
 
 ```bash
 mkdir -p ~/.local/share/gnome-shell/extensions
-ln -sfn "$(pwd)" ~/.local/share/gnome-shell/extensions/gnome-rio@deedles.dev
+ln -sfn "$(pwd)" ~/.local/share/gnome-shell/extensions/rio-resize@deedles.dev
 glib-compile-schemas schemas
 ```
 
@@ -36,7 +36,7 @@ Then enable:
 
 ```bash
 # On Wayland, log out/in or use a nested session to load new extensions.
-gnome-extensions enable gnome-rio@deedles.dev
+gnome-extensions enable rio-resize@deedles.dev
 ```
 
 On X11 you can often reload Shell with `Alt+F2`, `r`, Enter. On Wayland, restart the session.
@@ -44,8 +44,8 @@ On X11 you can often reload Shell with `Alt+F2`, `r`, Enter. On Wayland, restart
 Check status:
 
 ```bash
-gnome-extensions info gnome-rio@deedles.dev
-gnome-extensions show gnome-rio@deedles.dev
+gnome-extensions info rio-resize@deedles.dev
+gnome-extensions show rio-resize@deedles.dev
 ```
 
 ## Usage
@@ -67,7 +67,7 @@ Reshape drag is **mouse/pointer only**. Touch and tablet stroke gestures are not
 Open extension preferences to rebind the shortcut (modifier required; bare keys rejected):
 
 ```bash
-gnome-extensions prefs gnome-rio@deedles.dev
+gnome-extensions prefs rio-resize@deedles.dev
 ```
 
 Or via **Settings → Extensions → Rio Resize → Settings**.
@@ -75,8 +75,8 @@ Or via **Settings → Extensions → Rio Resize → Settings**.
 You can also change the binding with `gsettings` after install:
 
 ```bash
-gsettings --schemadir ~/.local/share/gnome-shell/extensions/gnome-rio@deedles.dev/schemas \
-  set org.gnome.shell.extensions.gnome-rio reshape-window "['<Super>r']"
+gsettings --schemadir ~/.local/share/gnome-shell/extensions/rio-resize@deedles.dev/schemas \
+  set org.gnome.shell.extensions.rio-resize reshape-window "['<Super>r']"
 ```
 
 ## Behavior notes
