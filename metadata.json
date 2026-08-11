@@ -3,7 +3,7 @@
   "name": "Rio Resize",
   "description": "Plan 9 rio-style window reshape: press Super+R, then drag a rubber-band rectangle to resize the focused window.",
   "shell-version": ["50"],
-  "url": "https://github.com/deedles/rio-resize",
+  "url": "https://github.com/DeedleFake/rio-resize",
   "settings-schema": "org.gnome.shell.extensions.rio-resize",
   "version": 1
 }
