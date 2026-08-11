@@ -21,7 +21,7 @@ m = json.load(open("metadata.json"))
 assert m["uuid"] == "gnome-rio@deedles.dev", m["uuid"]
 assert "50" in m["shell-version"], m["shell-version"]
 assert m["settings-schema"] == "org.gnome.shell.extensions.gnome-rio", m.get("settings-schema")
-assert m["name"], "name required"
+assert m["name"] == "Rio Resize", m["name"]
 print("OK: metadata contract")
 PY
 

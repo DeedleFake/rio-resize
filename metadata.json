@@ -1,6 +1,6 @@
 {
   "uuid": "gnome-rio@deedles.dev",
-  "name": "GNOME Rio",
+  "name": "Rio Resize",
   "description": "Plan 9 rio-style window reshape: press Super+R, then drag a rubber-band rectangle to resize the focused window.",
   "shell-version": ["50"],
   "url": "https://github.com/deedles/gnome-rio",

@@ -1,4 +1,4 @@
-# GNOME Rio
+# Rio Resize
 
 Plan 9 **rio**-style window reshape for GNOME Shell: draw a rubber-band rectangle and commit a new geometry for the focused window.
 
@@ -70,7 +70,7 @@ Open extension preferences to rebind the shortcut (modifier required; bare keys 
 gnome-extensions prefs gnome-rio@deedles.dev
 ```
 
-Or via **Settings → Extensions → GNOME Rio → Settings**.
+Or via **Settings → Extensions → Rio Resize → Settings**.
 
 You can also change the binding with `gsettings` after install:
 
