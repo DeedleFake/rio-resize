@@ -1,0 +1,14 @@
+.gnome-rio-rubberband {
+    border: 2px solid #3584e4;
+    background-color: rgba(53, 132, 228, 0.12);
+    border-radius: 2px;
+}
+
+.gnome-rio-message {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    padding: 12px 20px;
+}

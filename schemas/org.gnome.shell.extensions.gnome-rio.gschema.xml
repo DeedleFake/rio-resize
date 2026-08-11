@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.gnome-rio"
+          path="/org/gnome/shell/extensions/gnome-rio/">
+    <key type="as" name="reshape-window">
+      <default><![CDATA[['<Super>r']]]></default>
+      <summary>Reshape focused window</summary>
+      <description>Keyboard shortcut to start rio-style rubber-band reshape of the focused window.</description>
+    </key>
+  </schema>
+</schemalist>
