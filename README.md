@@ -121,4 +121,4 @@ node --test tests/geometry.test.js
 
 ## License
 
-GPL-2.0-or-later (same family as GNOME Shell extensions).
+MIT. See [LICENSE](LICENSE).

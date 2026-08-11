@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: MIT
 // Pure geometry / eligibility helpers (no GObject / Shell imports).
 // Safe to import from node --test.
 
