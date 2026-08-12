@@ -161,6 +161,44 @@ export function buildApplyActionOrder(flags = {}) {
 }
 
 /**
+ * Run planned apply steps. Shared by GeometryApplier and unit tests.
+ *
+ * @param {string[]} order
+ * @param {{
+ *   unmake_fullscreen?: () => void,
+ *   unmaximize?: () => void,
+ *   defer?: () => void,
+ *   move_resize_frame: (deferred: boolean) => void,
+ *   unknown?: (step: string) => void,
+ * }} handlers
+ * @returns {boolean} whether move_resize_frame was deferred
+ */
+export function runApplyActions(order, handlers) {
+    let deferred = false;
+    for (const step of order) {
+        switch (step) {
+        case 'unmake_fullscreen':
+            handlers.unmake_fullscreen?.();
+            break;
+        case 'unmaximize':
+            handlers.unmaximize?.();
+            break;
+        case 'defer':
+            deferred = true;
+            handlers.defer?.();
+            break;
+        case 'move_resize_frame':
+            handlers.move_resize_frame(deferred);
+            break;
+        default:
+            handlers.unknown?.(step);
+            break;
+        }
+    }
+    return deferred;
+}
+
+/**
  * Human-readable rejection for reshape entry (or null if allowed).
  *
  * @param {{

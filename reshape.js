@@ -15,6 +15,7 @@ import {
     parseMinSizeResult,
     resolveApplyOrigin,
     reshapeRejectionReason,
+    runApplyActions,
 } from './geometry.js';
 
 /** Flash message duration in ms. */
@@ -133,22 +134,13 @@ export class GeometryApplier {
                 maximizeFlags: window.get_maximize_flags(),
             });
 
-            let deferred = false;
-            for (const step of order) {
-                switch (step) {
-                case 'unmake_fullscreen':
-                    window.unmake_fullscreen();
-                    break;
-                case 'unmaximize':
-                    window.unmaximize();
-                    break;
-                case 'defer':
-                    // Unmaximize/fullscreen are async; commit on idle so the
-                    // compositor does not re-apply the old maximized frame.
-                    deferred = true;
-                    break;
-                case 'move_resize_frame':
+            runApplyActions(order, {
+                unmake_fullscreen: () => window.unmake_fullscreen(),
+                unmaximize: () => window.unmaximize(),
+                move_resize_frame: deferred => {
                     if (deferred) {
+                        // Unmaximize/fullscreen are async; commit on idle so
+                        // the compositor does not re-apply the old frame.
                         this._pending = {window, x, y, width, height};
                         this._idleId = GLib.idle_add(
                             GLib.PRIORITY_DEFAULT_IDLE,
@@ -160,12 +152,10 @@ export class GeometryApplier {
                     } else {
                         this._commitMoveResize(window, x, y, width, height);
                     }
-                    break;
-                default:
-                    console.error(`[rio-resize] unknown apply step: ${step}`);
-                    break;
-                }
-            }
+                },
+                unknown: step =>
+                    console.error(`[rio-resize] unknown apply step: ${step}`),
+            });
         } catch (e) {
             console.error('[rio-resize] apply failed:', e);
             this._flashMessage?.('Could not reshape window');

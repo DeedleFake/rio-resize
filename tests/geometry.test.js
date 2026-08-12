@@ -17,6 +17,7 @@ import {
     resolveApplyOrigin,
     buildApplyActionOrder,
     reshapeRejectionReason,
+    runApplyActions,
 } from '../geometry.js';
 
 describe('normalizeRect', () => {
@@ -179,64 +180,36 @@ describe('reshapeRejectionReason', () => {
     });
 });
 
-/**
- * Fake-window call-order unit test for apply planning (issue 18).
- * Mirrors GeometryApplier side-effect order without Shell imports.
- */
-describe('fake window apply action order', () => {
-    it('records unfullscreen → unmaximize → move_resize for maximized fullscreen', () => {
+describe('runApplyActions', () => {
+    it('runs unfullscreen → unmaximize → deferred move_resize', () => {
         const calls = [];
-        const window = {
-            fullscreen: true,
-            maximized: true,
-            maximizeFlags: 3,
-            allows_resize: () => true,
-            allows_move: () => true,
-            is_fullscreen: () => window.fullscreen,
-            is_maximized: () => window.maximized,
-            get_maximize_flags: () => window.maximizeFlags,
-            unmake_fullscreen() {
-                calls.push('unmake_fullscreen');
-                window.fullscreen = false;
-            },
-            unmaximize() {
-                calls.push('unmaximize');
-                window.maximized = false;
-                window.maximizeFlags = 0;
-            },
-            move_resize_frame(userOp, x, y, w, h) {
-                calls.push(['move_resize_frame', userOp, x, y, w, h]);
-            },
-            get_min_size: () => [true, 40, 40],
-            get_frame_rect: () => ({x: 0, y: 0, width: 800, height: 600}),
-        };
+        const deferred = runApplyActions(
+            buildApplyActionOrder({fullscreen: true, maximized: true}),
+            {
+                unmake_fullscreen: () => calls.push('unmake_fullscreen'),
+                unmaximize: () => calls.push('unmaximize'),
+                defer: () => calls.push('defer'),
+                move_resize_frame: wasDeferred =>
+                    calls.push(['move_resize_frame', wasDeferred]),
+            });
 
-        // Simulate GeometryApplier planning + immediate commit path order.
-        const order = buildApplyActionOrder({
-            fullscreen: window.is_fullscreen(),
-            maximized: window.is_maximized(),
-            maximizeFlags: window.get_maximize_flags(),
-        });
-        assert.deepEqual(order, [
-            'unmake_fullscreen', 'unmaximize', 'defer', 'move_resize_frame',
-        ]);
-
-        for (const step of order) {
-            if (step === 'unmake_fullscreen')
-                window.unmake_fullscreen();
-            else if (step === 'unmaximize')
-                window.unmaximize();
-            else if (step === 'defer')
-                calls.push('defer');
-            else if (step === 'move_resize_frame')
-                window.move_resize_frame(true, 10, 20, 300, 200);
-        }
-
+        assert.equal(deferred, true);
         assert.deepEqual(calls, [
             'unmake_fullscreen',
             'unmaximize',
             'defer',
-            ['move_resize_frame', true, 10, 20, 300, 200],
+            ['move_resize_frame', true],
         ]);
+    });
+
+    it('runs immediate move_resize when no state clear is needed', () => {
+        const calls = [];
+        const deferred = runApplyActions(buildApplyActionOrder({}), {
+            move_resize_frame: wasDeferred =>
+                calls.push(['move_resize_frame', wasDeferred]),
+        });
+
+        assert.equal(deferred, false);
+        assert.deepEqual(calls, [['move_resize_frame', false]]);
     });
 });
