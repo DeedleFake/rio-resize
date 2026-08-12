@@ -68,7 +68,16 @@ function createShortcutButton(settings, key) {
         has_frame: false,
     });
 
+    let editing = false;
+    let savedBinding = null;
+    let controller = null;
+    let controllerId = 0;
+    let controllerTarget = null;
+    let disposed = false;
+
     const updateFromSettings = () => {
+        if (editing)
+            return;
         const value = settings.get_strv(key)[0];
         if (!value)
             button.set_label(_('Disabled'));
@@ -77,42 +86,65 @@ function createShortcutButton(settings, key) {
         resetButton.sensitive = settings.get_user_value(key) !== null;
     };
 
-    updateFromSettings();
-    let settingsChangedId = settings.connect(`changed::${key}`, updateFromSettings);
-    let disposed = false;
+    const writeBinding = strv => {
+        const def = settings.get_default_value(key).deep_unpack();
+        if (strv.length === def.length && strv.every((v, i) => v === def[i]))
+            settings.reset(key);
+        else
+            settings.set_strv(key, strv);
+    };
 
-    let editing = false;
-    let controller = null;
-    let controllerId = 0;
+    const detachController = () => {
+        if (!controller)
+            return;
+        if (controllerId)
+            controller.disconnect(controllerId);
+        controllerTarget?.remove_controller(controller);
+        controller = null;
+        controllerId = 0;
+        controllerTarget = null;
+    };
 
-    const stopEditing = () => {
+    // Leave the Shell binding empty while capturing, otherwise Mutter
+    // eats Super+R (and any other already-bound combo) before GTK sees it.
+    const finishEditing = (mode, strv) => {
+        const restore = savedBinding;
+        savedBinding = null;
         editing = false;
-        if (controller) {
-            if (controllerId)
-                controller.disconnect(controllerId);
-            button.remove_controller(controller);
-            controller = null;
-            controllerId = 0;
-        }
+        detachController();
+        if (mode === 'restore' && restore)
+            writeBinding(restore);
+        else if (mode === 'clear')
+            writeBinding([]);
+        else if (mode === 'apply')
+            writeBinding(strv);
         updateFromSettings();
     };
 
+    updateFromSettings();
+    let settingsChangedId = settings.connect(`changed::${key}`, updateFromSettings);
+
     resetButton.connect('clicked', () => {
-        stopEditing();
+        savedBinding = null;
+        finishEditing('keep');
         settings.reset(key);
     });
 
     button.connect('clicked', () => {
         if (editing) {
-            stopEditing();
+            finishEditing('restore');
             return;
         }
 
+        savedBinding = settings.get_strv(key).slice();
         editing = true;
         button.set_label(_('Enter shortcut…'));
+        settings.set_strv(key, []);
 
+        controllerTarget = button.get_root() ?? button;
         controller = new Gtk.EventControllerKey();
-        button.add_controller(controller);
+        controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+        controllerTarget.add_controller(controller);
 
         controllerId = controller.connect('key-pressed', (_ec, keyval, keycode, mask) => {
             mask &= Gtk.accelerator_get_default_mod_mask();
@@ -125,11 +157,10 @@ function createShortcutButton(settings, key) {
             if (mask === 0) {
                 switch (keyval) {
                 case Gdk.KEY_Escape:
-                    stopEditing();
+                    finishEditing('restore');
                     return Gdk.EVENT_STOP;
                 case Gdk.KEY_BackSpace:
-                    settings.set_strv(key, []);
-                    stopEditing();
+                    finishEditing('clear');
                     return Gdk.EVENT_STOP;
                 default:
                     button.set_label(_('Need a modifier…'));
@@ -144,8 +175,9 @@ function createShortcutButton(settings, key) {
 
             const name = Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask);
             if (name)
-                settings.set_strv(key, [name]);
-            stopEditing();
+                finishEditing('apply', [name]);
+            else
+                finishEditing('restore');
             return Gdk.EVENT_STOP;
         });
     });
@@ -154,7 +186,7 @@ function createShortcutButton(settings, key) {
         if (disposed)
             return;
         disposed = true;
-        stopEditing();
+        finishEditing('restore');
         if (settingsChangedId) {
             settings.disconnect(settingsChangedId);
             settingsChangedId = 0;
