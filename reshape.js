@@ -11,6 +11,7 @@ import {
     buildApplyActionOrder,
     clampGeometrySize,
     isAcceptableRubberband,
+    isSizeStateBlockingResize,
     normalizeRect,
     parseMinSizeResult,
     resolveApplyOrigin,
@@ -84,6 +85,9 @@ export function rejectionForWindow(window) {
         overrideRedirect,
         windowTypeNick: windowTypeNick(window.get_window_type()),
         allowsResize: window.allows_resize(),
+        fullscreen: window.is_fullscreen(),
+        maximized: window.is_maximized(),
+        maximizeFlags: window.get_maximize_flags(),
     });
 }
 
@@ -122,17 +126,18 @@ export class GeometryApplier {
                 this._flashMessage?.('Window closed');
                 return;
             }
-            if (!window.allows_resize()) {
+            const sizeState = {
+                fullscreen: window.is_fullscreen(),
+                maximized: window.is_maximized(),
+                maximizeFlags: window.get_maximize_flags(),
+            };
+            if (!window.allows_resize() && !isSizeStateBlockingResize(sizeState)) {
                 this._flashMessage?.('Window cannot be resized');
                 return;
             }
 
             // Shared planner with unit tests — production order cannot drift.
-            const order = buildApplyActionOrder({
-                fullscreen: window.is_fullscreen(),
-                maximized: window.is_maximized(),
-                maximizeFlags: window.get_maximize_flags(),
-            });
+            const order = buildApplyActionOrder(sizeState);
 
             runApplyActions(order, {
                 unmake_fullscreen: () => window.unmake_fullscreen(),

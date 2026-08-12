@@ -206,6 +206,9 @@ export function runApplyActions(order, handlers) {
  *   overrideRedirect?: boolean,
  *   windowTypeNick?: string,
  *   allowsResize?: boolean,
+ *   fullscreen?: boolean,
+ *   maximized?: boolean,
+ *   maximizeFlags?: number,
  * }} info
  * @returns {string|null}
  */
@@ -217,7 +220,20 @@ export function reshapeRejectionReason(info = {}) {
     const nick = info.windowTypeNick ?? 'normal';
     if (!RESHAPEABLE_WINDOW_TYPE_NICKS.includes(nick))
         return 'Window cannot be reshaped';
-    if (info.allowsResize === false)
+    // allows_resize() is false while maximized/fullscreen. Those states
+    // can be cleared; only a permanently fixed size is a hard reject.
+    if (info.allowsResize === false && !isSizeStateBlockingResize(info))
         return 'Window cannot be resized';
     return null;
+}
+
+/**
+ * Mutter denies resize while maximized or fullscreen. Clearing that
+ * state can make a resizable window resizable again.
+ *
+ * @param {{fullscreen?: boolean, maximized?: boolean, maximizeFlags?: number}} flags
+ * @returns {boolean}
+ */
+export function isSizeStateBlockingResize(flags = {}) {
+    return !!(flags.fullscreen || flags.maximized || (flags.maximizeFlags ?? 0) !== 0);
 }

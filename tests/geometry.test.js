@@ -16,6 +16,7 @@ import {
     clampGeometrySize,
     resolveApplyOrigin,
     buildApplyActionOrder,
+    isSizeStateBlockingResize,
     reshapeRejectionReason,
     runApplyActions,
 } from '../geometry.js';
@@ -168,6 +169,27 @@ describe('reshapeRejectionReason', () => {
         assert.equal(
             reshapeRejectionReason({windowTypeNick: 'normal', allowsResize: false}),
             'Window cannot be resized');
+        assert.equal(
+            reshapeRejectionReason({
+                windowTypeNick: 'normal',
+                allowsResize: false,
+                maximized: true,
+            }),
+            null);
+        assert.equal(
+            reshapeRejectionReason({
+                windowTypeNick: 'normal',
+                allowsResize: false,
+                fullscreen: true,
+            }),
+            null);
+        assert.equal(
+            reshapeRejectionReason({
+                windowTypeNick: 'normal',
+                allowsResize: false,
+                maximizeFlags: 1,
+            }),
+            null);
     });
 
     it('allows normal/dialog/utility/modal_dialog', () => {
@@ -177,6 +199,15 @@ describe('reshapeRejectionReason', () => {
                 null,
                 nick);
         }
+    });
+});
+
+describe('isSizeStateBlockingResize', () => {
+    it('is true for maximized, fullscreen, or maximize flags', () => {
+        assert.equal(isSizeStateBlockingResize({maximized: true}), true);
+        assert.equal(isSizeStateBlockingResize({fullscreen: true}), true);
+        assert.equal(isSizeStateBlockingResize({maximizeFlags: 1}), true);
+        assert.equal(isSizeStateBlockingResize({}), false);
     });
 });
 
