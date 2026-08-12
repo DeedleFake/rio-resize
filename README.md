@@ -35,11 +35,9 @@ glib-compile-schemas schemas
 Then enable:
 
 ```bash
-# On Wayland, log out/in or use a nested session to load new extensions.
+# Log out/in or use a nested session to load a new extension.
 gnome-extensions enable rio-resize@deedles.dev
 ```
-
-On X11 you can often reload Shell with `Alt+F2`, `r`, Enter. On Wayland, restart the session.
 
 Check status:
 
