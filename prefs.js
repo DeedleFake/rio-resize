@@ -17,20 +17,19 @@ export default class RioResizePreferences extends ExtensionPreferences {
         window._settings = settings;
 
         const page = new Adw.PreferencesPage({
-            title: _('General'),
+            title: _('Keyboard'),
             icon_name: 'preferences-desktop-keyboard-shortcuts-symbolic',
         });
         window.add(page);
 
         const group = new Adw.PreferencesGroup({
-            title: _('Keyboard shortcut'),
-            description: _('Activate rio-style rubber-band reshape for the focused window'),
+            title: _('Reshape'),
+            description: _('Draw a rectangle to resize the focused window.'),
         });
         page.add(group);
 
         const row = new Adw.ActionRow({
-            title: _('Reshape window'),
-            subtitle: _('Default: Super+R. Click the button, then press a new shortcut (modifier required). Backspace clears.'),
+            title: _('Shortcut'),
         });
         group.add(row);
 
@@ -44,7 +43,7 @@ export default class RioResizePreferences extends ExtensionPreferences {
             return false;
         });
 
-        window.set_default_size(520, 280);
+        window.set_default_size(480, 240);
     }
 }
 
@@ -138,7 +137,7 @@ function createShortcutButton(settings, key) {
 
         savedBinding = settings.get_strv(key).slice();
         editing = true;
-        button.set_label(_('Enter shortcut…'));
+        button.set_label(_('Press a shortcut…'));
         settings.set_strv(key, []);
 
         controllerTarget = button.get_root() ?? button;
@@ -163,13 +162,13 @@ function createShortcutButton(settings, key) {
                     finishEditing('clear');
                     return Gdk.EVENT_STOP;
                 default:
-                    button.set_label(_('Need a modifier…'));
+                    button.set_label(_('Add a modifier'));
                     return Gdk.EVENT_STOP;
                 }
             }
 
             if (!Gtk.accelerator_valid(keyval, mask)) {
-                button.set_label(_('Need a modifier…'));
+                button.set_label(_('Add a modifier'));
                 return Gdk.EVENT_STOP;
             }
 
