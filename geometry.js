@@ -183,14 +183,3 @@ export function reshapeRejectionReason(info = {}) {
         return 'Window cannot be resized';
     return null;
 }
-
-/**
- * Whether an accelerator mask is acceptable for prefs capture.
- * Bare keys (no modifier) are rejected except Escape/BackSpace handling elsewhere.
- *
- * @param {number} mask - modifier mask after accelerator_get_default_mod_mask
- * @returns {boolean}
- */
-export function isValidShortcutMask(mask) {
-    return (Number(mask) || 0) !== 0;
-}

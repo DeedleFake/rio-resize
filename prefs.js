@@ -9,8 +9,6 @@ import {
     gettext as _,
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-import {isValidShortcutMask} from './geometry.js';
-
 const KEYBINDING = 'reshape-window';
 
 export default class RioResizePreferences extends ExtensionPreferences {
@@ -105,6 +103,11 @@ function createShortcutButton(settings, key) {
         controllerId = controller.connect('key-pressed', (_ec, keyval, keycode, mask) => {
             mask &= Gtk.accelerator_get_default_mod_mask();
 
+            // Super, Ctrl, and the other modifiers arrive as their own
+            // key-press. Wait for the non-modifier key (Super then R).
+            if (isModifierKeyval(keyval))
+                return Gdk.EVENT_STOP;
+
             if (mask === 0) {
                 switch (keyval) {
                 case Gdk.KEY_Escape:
@@ -115,13 +118,12 @@ function createShortcutButton(settings, key) {
                     stopEditing();
                     return Gdk.EVENT_STOP;
                 default:
-                    // Reject bare keys (no real modifier).
                     button.set_label(_('Need a modifier…'));
                     return Gdk.EVENT_STOP;
                 }
             }
 
-            if (!isValidShortcutMask(mask)) {
+            if (!Gtk.accelerator_valid(keyval, mask)) {
                 button.set_label(_('Need a modifier…'));
                 return Gdk.EVENT_STOP;
             }
@@ -146,4 +148,34 @@ function createShortcutButton(settings, key) {
     };
 
     return {button, dispose};
+}
+
+/**
+ * @param {number} keyval
+ * @returns {boolean}
+ */
+function isModifierKeyval(keyval) {
+    switch (keyval) {
+    case Gdk.KEY_Shift_L:
+    case Gdk.KEY_Shift_R:
+    case Gdk.KEY_Control_L:
+    case Gdk.KEY_Control_R:
+    case Gdk.KEY_Alt_L:
+    case Gdk.KEY_Alt_R:
+    case Gdk.KEY_Meta_L:
+    case Gdk.KEY_Meta_R:
+    case Gdk.KEY_Super_L:
+    case Gdk.KEY_Super_R:
+    case Gdk.KEY_Hyper_L:
+    case Gdk.KEY_Hyper_R:
+    case Gdk.KEY_ISO_Level3_Shift:
+    case Gdk.KEY_ISO_Level5_Shift:
+    case Gdk.KEY_Caps_Lock:
+    case Gdk.KEY_Shift_Lock:
+    case Gdk.KEY_Num_Lock:
+    case Gdk.KEY_Scroll_Lock:
+        return true;
+    default:
+        return false;
+    }
 }

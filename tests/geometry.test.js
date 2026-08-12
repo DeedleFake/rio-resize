@@ -17,7 +17,6 @@ import {
     resolveApplyOrigin,
     buildApplyActionOrder,
     reshapeRejectionReason,
-    isValidShortcutMask,
 } from '../geometry.js';
 
 describe('normalizeRect', () => {
@@ -177,17 +176,6 @@ describe('reshapeRejectionReason', () => {
                 null,
                 nick);
         }
-    });
-});
-
-describe('isValidShortcutMask', () => {
-    it('rejects bare keys (mask 0)', () => {
-        assert.equal(isValidShortcutMask(0), false);
-    });
-
-    it('accepts non-zero modifier masks', () => {
-        assert.equal(isValidShortcutMask(1), true);
-        assert.equal(isValidShortcutMask(64), true);
     });
 });
 
