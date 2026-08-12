@@ -34,8 +34,9 @@ export default class RioResizePreferences extends ExtensionPreferences {
         });
         group.add(row);
 
-        const {button, dispose} = createShortcutButton(settings, KEYBINDING);
+        const {button, resetButton, dispose} = createShortcutButton(settings, KEYBINDING);
         row.add_suffix(button);
+        row.add_suffix(resetButton);
         row.activatable_widget = button;
 
         window.connect('close-request', () => {
@@ -52,7 +53,7 @@ export default class RioResizePreferences extends ExtensionPreferences {
  *
  * @param {Gio.Settings} settings
  * @param {string} key
- * @returns {{button: Gtk.Button, dispose: () => void}}
+ * @returns {{button: Gtk.Button, resetButton: Gtk.Button, dispose: () => void}}
  */
 function createShortcutButton(settings, key) {
     const button = new Gtk.Button({
@@ -60,16 +61,24 @@ function createShortcutButton(settings, key) {
         valign: Gtk.Align.CENTER,
     });
 
-    const setLabelFromSettings = () => {
+    const resetButton = new Gtk.Button({
+        icon_name: 'edit-clear-symbolic',
+        valign: Gtk.Align.CENTER,
+        tooltip_text: _('Reset to default'),
+        has_frame: false,
+    });
+
+    const updateFromSettings = () => {
         const value = settings.get_strv(key)[0];
         if (!value)
             button.set_label(_('Disabled'));
         else
             button.set_label(value);
+        resetButton.sensitive = settings.get_user_value(key) !== null;
     };
 
-    setLabelFromSettings();
-    let settingsChangedId = settings.connect(`changed::${key}`, setLabelFromSettings);
+    updateFromSettings();
+    let settingsChangedId = settings.connect(`changed::${key}`, updateFromSettings);
     let disposed = false;
 
     let editing = false;
@@ -85,8 +94,13 @@ function createShortcutButton(settings, key) {
             controller = null;
             controllerId = 0;
         }
-        setLabelFromSettings();
+        updateFromSettings();
     };
+
+    resetButton.connect('clicked', () => {
+        stopEditing();
+        settings.reset(key);
+    });
 
     button.connect('clicked', () => {
         if (editing) {
@@ -147,7 +161,7 @@ function createShortcutButton(settings, key) {
         }
     };
 
-    return {button, dispose};
+    return {button, resetButton, dispose};
 }
 
 /**
